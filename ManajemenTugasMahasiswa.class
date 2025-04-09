@@ -1,0 +1,174 @@
+// Source code is decompiled from a .class file using FernFlower decompiler.
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+
+public class ManajemenTugasMahasiswa extends JFrame {
+   private JTextField namaField;
+   private JTextField deadlineField;
+   private JTextArea deskripsiArea;
+   private JComboBox<String> kategoriBox;
+   private JTable tabelTugas;
+   private DefaultTableModel tabelModel;
+   private ArrayList<ManajemenTugasMahasiswa$Tugas> daftarTugas = new ArrayList();
+
+   public ManajemenTugasMahasiswa() {
+      this.setTitle("Aplikasi Manajemen Tugas Mahasiswa");
+      this.setSize(800, 600);
+      this.setDefaultCloseOperation(3);
+      this.setLocationRelativeTo((Component)null);
+      this.setLayout(new BorderLayout());
+      this.setLayout(new BorderLayout());
+      JPanel var1 = new JPanel();
+      var1.setLayout(new BoxLayout(var1, 1));
+      JPanel var2 = new JPanel(new GridLayout(5, 2, 10, 10));
+      var2.setBorder(BorderFactory.createTitledBorder("Input Tugas"));
+      var2.add(new JLabel("Nama Tugas:"));
+      this.namaField = new JTextField();
+      var2.add(this.namaField);
+      var2.add(new JLabel("Deskripsi:"));
+      this.deskripsiArea = new JTextArea(2, 20);
+      var2.add(new JScrollPane(this.deskripsiArea));
+      var2.add(new JLabel("Deadline:"));
+      this.deadlineField = new JTextField("YYYY-MM-DD");
+      var2.add(this.deadlineField);
+      var2.add(new JLabel("Kategori:"));
+      this.kategoriBox = new JComboBox(new String[]{"Kuliah", "Organisasi", "Pribadi"});
+      var2.add(this.kategoriBox);
+      JPanel var3 = new JPanel(new FlowLayout(1, 20, 10));
+      JButton var4 = new JButton("Simpan");
+      JButton var5 = new JButton("Tampilkan");
+      JButton var6 = new JButton("Hapus");
+      JButton var7 = new JButton("Save ke File");
+      var3.add(var4);
+      var3.add(var5);
+      var3.add(var6);
+      var3.add(var7);
+      this.tabelModel = new DefaultTableModel(new String[]{"Nama", "Deskripsi", "Deadline", "Kategori"}, 0);
+      this.tabelTugas = new JTable(this.tabelModel);
+      JScrollPane var8 = new JScrollPane(this.tabelTugas);
+      var8.setBorder(BorderFactory.createTitledBorder("Daftar Tugas"));
+      var1.add(var2);
+      var1.add(var3);
+      var1.add(var8);
+      this.add(var1, "Center");
+      var4.addActionListener((var1x) -> {
+         this.simpanTugas();
+      });
+      var5.addActionListener((var1x) -> {
+         this.tampilkanTugas();
+      });
+      var6.addActionListener((var1x) -> {
+         this.hapusTugas();
+      });
+      var7.addActionListener((var1x) -> {
+         this.simpanKeFile();
+      });
+   }
+
+   private void simpanTugas() {
+      String var1 = this.namaField.getText();
+      String var2 = this.deskripsiArea.getText();
+      String var3 = this.deadlineField.getText();
+      String var4 = (String)this.kategoriBox.getSelectedItem();
+      if (!var1.isEmpty() && !var3.isEmpty()) {
+         ManajemenTugasMahasiswa$Tugas var5 = new ManajemenTugasMahasiswa$Tugas(this, var1, var2, var3, var4);
+         this.daftarTugas.add(var5);
+         JOptionPane.showMessageDialog(this, "Tugas berhasil disimpan!");
+         this.bersihkanInput();
+      } else {
+         JOptionPane.showMessageDialog(this, "Nama dan deadline harus diisi.");
+      }
+   }
+
+   private void tampilkanTugas() {
+      this.tabelModel.setRowCount(0);
+      Iterator var1 = this.daftarTugas.iterator();
+
+      while(var1.hasNext()) {
+         ManajemenTugasMahasiswa$Tugas var2 = (ManajemenTugasMahasiswa$Tugas)var1.next();
+         this.tabelModel.addRow(new Object[]{var2.nama, var2.deskripsi, var2.deadline, var2.kategori});
+      }
+
+   }
+
+   private void hapusTugas() {
+      int var1 = this.tabelTugas.getSelectedRow();
+      if (var1 != -1) {
+         this.daftarTugas.remove(var1);
+         this.tabelModel.removeRow(var1);
+      } else {
+         JOptionPane.showMessageDialog(this, "Pilih baris yang ingin dihapus.");
+      }
+
+   }
+
+   private void simpanKeFile() {
+      try {
+         FileWriter var1 = new FileWriter("tugas.txt");
+
+         try {
+            Iterator var2 = this.daftarTugas.iterator();
+
+            while(true) {
+               if (!var2.hasNext()) {
+                  JOptionPane.showMessageDialog(this, "Data berhasil disimpan ke tugas.txt");
+                  break;
+               }
+
+               ManajemenTugasMahasiswa$Tugas var3 = (ManajemenTugasMahasiswa$Tugas)var2.next();
+               var1.write("Nama: " + var3.nama + "\n");
+               var1.write("Deskripsi: " + var3.deskripsi + "\n");
+               var1.write("Deadline: " + var3.deadline + "\n");
+               var1.write("Kategori: " + var3.kategori + "\n");
+               var1.write("--------------------------\n");
+            }
+         } catch (Throwable var5) {
+            try {
+               var1.close();
+            } catch (Throwable var4) {
+               var5.addSuppressed(var4);
+            }
+
+            throw var5;
+         }
+
+         var1.close();
+      } catch (IOException var6) {
+         JOptionPane.showMessageDialog(this, "Gagal menyimpan file: " + var6.getMessage());
+      }
+
+   }
+
+   private void bersihkanInput() {
+      this.namaField.setText("");
+      this.deskripsiArea.setText("");
+      this.deadlineField.setText("YYYY-MM-DD");
+      this.kategoriBox.setSelectedIndex(0);
+   }
+
+   public static void main(String[] var0) {
+      SwingUtilities.invokeLater(() -> {
+         (new ManajemenTugasMahasiswa()).setVisible(true);
+      });
+   }
+}
